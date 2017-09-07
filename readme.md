@@ -4,7 +4,7 @@ Email: anishreddyravula@gmail.com
 """
 
 
-Django project to implement moviebluff project specified for stockroom.io.
+Django project to implement moviebluff project.
 
 + Install python 3.5 with virtualenvironment
 + install the requirements as >>>pip install -r requirements.txt
