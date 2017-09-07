@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="author" content="Anish Reddy">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1">
+		
+		<title>Movie Review</title>
+
+				{% load static %}
+		<link rel="stylesheet" href={% static "style.css" %}>
+		<link rel="stylesheet" href={% static "semantic/dist/semantic.min.css" %}>
+		
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/reset.css" %}>
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/site.css" %}>
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/grid.css" %}>
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/card.min.css" %}>
+
+
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/icon.css" %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/button.css"  %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/card.css" %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/label.css" %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/image.css" %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/reveal.css" %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/dimmer.css" %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/rating.css" %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/transition.css" %} >
+		<link rel="stylesheet" type="text/css" href={% static "semantic/dist/components/popup.css" %} >
+
+		<script type="text/javascript" src={% static "js/jquery-1.11.1.min.js" %}></script>
+		<script type="text/javascript" src={% static "semantic/dist/components/popup.js" %}></script>
+		<script type="text/javascript" src={% static "semantic/dist/components/dimmer.js" %}></script>
+		<script type="text/javascript" src={% static "semantic/dist/components/rating.js" %}></script>
+		<script type="text/javascript" src={% static "semantic/dist/components/transition.js" %}></script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+
+
+ <script>
+	function getCookie(name) {
+		var cookieValue = null;
+		if (document.cookie && document.cookie != '') {
+		    var cookies = document.cookie.split(';');
+		    for (var i = 0; i < cookies.length; i++) {
+		        var cookie = jQuery.trim(cookies[i]);
+		        // Does this cookie string begin with the name we want?
+		        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+		            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		            break;
+		        }
+		    }
+		}
+		return cookieValue;
+	}
+	var csrftoken = getCookie('csrftoken');
+	function csrfSafeMethod(method) {
+	    // these HTTP methods do not require CSRF protection
+	    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	$.ajaxSetup({
+	    beforeSend: function(xhr, settings) {
+	        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+	            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	        }
+	    }
+	});
+  $(document).ready(function() {
+	$('.special.card .image').dimmer({
+		on: 'hover'
+	});
+	$('.star.rating')
+		.rating();
+	$('.card .dimmer')
+		.dimmer({
+	  		on: 'hover'
+	});
+		$('.ui.rating')
+  .rating()
+;
+$('.ui.heart.rating')
+  .rating('disable')
+;
+
+
+
+$("#search").submit(function(event) {
+
+    //to prevent normal form submition and reloading page
+    event.preventDefault();
+
+    //saving formid and formdetails for further use
+    // window.alert("lol");
+    
+    // alert(formID);
+    var formDetails = document.getElementById("search_f").value;
+    // alert(formDetails);
+   $.ajax({
+      type: "POST",
+      url: '{% url 'ajax_update' %}',headers: {
+				'X-CSRFToken': $('meta[name="token"]').attr('content')
+			},
+			data: {csrfmiddlewaretoken :csrftoken,formDetails: formDetails, search: "search"},
+      success: function (data) {  
+        //See if class attended status is updated, if updated chnage button to disabled
+       
+
+       
+        if (data.updated){
+        	console.log(data.html);
+        	$('.search_append').empty();
+        	$(".search_append").append(data.result);
+        	$("#search_head_hidden").show();
+          $('.special.card .image').dimmer({
+		on: 'hover'
+	});
+	$('.star.rating')
+		.rating();
+	$('.card .dimmer')
+		.dimmer({
+	  		on: 'hover'
+	});
+				$('.ui.rating')
+  .rating()
+
+				}    
+			},
+      error: function(jqXHR, text, error){
+            // Displaying if there are any errors
+              $('#result').html(error);  
+        }
+    });
+    return false;
+});
+
+
+
+
+	$('body').on('click',".button", function(){
+		event.preventDefault();
+		//to prevent normal form submition and reloading page
+
+		//saving formid and formdetails for further use
+		// window.alert("lol");
+		var  status = $(this).attr('name');
+		if (status == "watched"){
+		var id = $(this).val();
+		}
+		if (status == "not_watched"){
+		var id = $(this).val();
+		}
+
+	   $.ajax({
+			type: "POST",
+			url: '{% url 'ajax_update' %}',
+			headers: {
+				'X-CSRFToken': $('meta[name="token"]').attr('content')
+			},
+			data: {csrfmiddlewaretoken :csrftoken, status : status, id: id},
+
+			success: function (data) {  
+			//See if class attended status is updated, if updated chnage button to disabled
+				if (data.updated){
+					$("#"+id).remove();
+					$(".movies_append").append(data.html)
+					$('.special.card .image').dimmer({
+		on: 'hover'
+	});
+	$('.star.rating')
+		.rating();
+	$('.card .dimmer')
+		.dimmer({
+	  		on: 'hover'
+	});
+
+				}    
+			},
+			error: function(jqXHR, text, error){
+	    	// Displaying if there are any errors
+	      		$('#result').html(error);  
+			}
+			});
+		return false;
+	});
+   });
+
+  </script>
+
+	</head>
+
+
+	<body>
+		
+
+		<div id="site-content">
+			<header class="site-header">
+				<div class="container">
+					<a href="index.html" id="branding">
+						<img src={% static "images/logo.png" alt="" class="logo" %}>
+						<div class="logo-copy">
+						</div>
+					</a> <!-- #branding -->
+
+					<div class="main-navigation">
+						<button type="button" class="menu-toggle"><i class="fa fa-bars"></i></button>
+						<ul class="menu">
+							<li class="menu-item current-menu-item"><a href="index.html">Home</a></li>
+						</ul> <!-- .menu -->
+
+						
+					</div> <!-- .main-navigation -->
+
+					<div class="mobile-navigation"></div>
+				</div>
+			</header>
+			<main class="main-content">
+				<div class="container">
+					<div class="page">
+
+							
+								<div class="ui icon input loading">
+								<form method="POST" id="search">
+								  <input type="text" id="search_f" placeholder="Search..." style=" position: relative;width: 1000px;">
+								  <i class="search icon"></i>
+								  <button type="submit" hidden="true"></button>
+								</div>
+								</form>
+								<div class="results"></div>
+							
+							<h2 id="search_head_hidden" hidden> Search Results</h2>
+							<div class="ui four column grid search_append" id="search_append">
+							</div>
+<br>
+<br>
+					<h2>Movies</h2>
+					<div class="ui four column grid movies_append">
+							{% for movie in movies %}
+							
+							<div class="column" id="{{movie.id}}">
+								<div class="ui special fluid card">
+								  <div class="card">
+								    <div class="blurring dimmable image">
+								      <div class="ui dimmer">
+								     <!--  <div class="circular right ui icon button ">
+								            	<i class="icon settings"></i>
+								            </div> -->
+								        <div class="content">
+								          <div class="center">
+								          <div class="ui tiny buttons">
+								          
+								          {% csrf_token %}
+											  <button  name ="watched" value="{{movie.id}}" class="ui button">Watched</button>
+
+											  <button  class="ui button" name ="not_watched" value="{{movie.id}}">Not Watched</button>
+											</div>
+								            <!-- <div class="ui inverted button positive">
+								            	Watched
+								            </div> -->
+								            
+								          </div>
+								        </div>
+								      </div>
+								      <img src="{{movie.image_path}}" alt="Slide 1" %} alt="Movie 3" %}>
+								    </div>
+								    <div class="content" style="padding-left: 2px">
+								      <a class="header">{{movie.title}}</a>
+								      <div class="meta">
+								        <span class="date">{{movie.release_date}}</span>
+								      </div>
+								      Popularity: <div class="ui heart rating" data-rating="{{movie.popularity}}" data-max-rating="5"></div>
+								    </div>
+								    <div class="extra content" style="padding-left: 2px">
+								    
+								      
+								        Rate: <div class="ui star rating" data-rating="0" data-max-rating="5"></div>
+								        
+								      
+							   		 </div>
+							   		 
+							  </div>
+							  </div>
+							</div>
+							
+							{% endfor %}
+							</div>
+						
+
+
+
+
+
+
+
+
+
+
+
+<h2> Recomendations</h2>
+<div class="ui four column grid ">
+
+
+							
+							{{recommended|safe}}
+
+							</div>
+
+
+
+
+
+
+
+
+
+
+
+								<!-- <div class="col-sm-6 col-md-3">
+									<div class="latest-movie">
+										<a href="#"><img style="display: inherit; " src="{{image}}" alt="Slide 1" %} alt="Movie 3" %}></a>
+										<div class="ui buttons" style="display:  inherit;">
+										  <button class="ui button ">Not Watched</button>
+										  <div class="or"></div>
+										  <button class="ui positive button">Watched</button>
+										</div>
+									</div>
+								
+								</div> -->
+
+							
+							
+						
+						
+					</div>
+				</div> <!-- .container -->
+			</main>
+			<footer class="site-footer">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-2">
+							<div class="widget">
+								<h3 class="widget-title">About Us</h3>
+								
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="widget">
+								<h3 class="widget-title">Recent Review</h3>
+								
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="widget">
+								<h3 class="widget-title">Help Center</h3>
+								
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="widget">
+								<h3 class="widget-title">Join Us</h3>
+								
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="widget">
+								<h3 class="widget-title">Social Media</h3>
+								
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="widget">
+								<h3 class="widget-title">Newsletter</h3>
+								
+							</div>
+						</div>
+					</div> <!-- .row -->
+
+				</div> <!-- .container -->
+
+			</footer>
+		</div>
+
+		
+
+
+		
+		
+	</body>
+
+</html>
